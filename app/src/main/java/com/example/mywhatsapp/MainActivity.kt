@@ -4,11 +4,14 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
@@ -23,18 +26,23 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.example.mywhatsapp.ui.theme.MyWhatsAppTheme
 import com.example.mywhatsapp.ui.theme.Purple40
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -42,8 +50,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MyWhatsAppTheme {
+                val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
+                    rememberTopAppBarState()
+                )
                 // A surface container using the 'background' color from the theme
-                Scaffold (modifier = Modifier.fillMaxSize(), topBar = { MyTopAppBar()}){
+                Scaffold (
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .nestedScroll(scrollBehavior.nestedScrollConnection),
+                    topBar = { MyTopAppBar(scrollBehavior)}){
 
                     Box (modifier = Modifier
                         .fillMaxSize()
@@ -61,7 +76,7 @@ class MainActivity : ComponentActivity() {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTopAppBar(){
+fun MyTopAppBar(scrollBehavior: TopAppBarScrollBehavior){
     var isMenuVisible by remember { mutableStateOf(false) }
     TopAppBar(
         title = {
@@ -95,27 +110,36 @@ fun MyTopAppBar(){
                 }
             }
         },
-        colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Purple40)
+        colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Purple40),
+        scrollBehavior = scrollBehavior
     )
 }
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MyTabs(){
-    var state by remember { mutableStateOf(0) }
+    var pagerState = rememberPagerState(initialPage = 0) //variable a la que iniciamos
+    var scope = rememberCoroutineScope() //necesario tmb para tab a tab
     val titles = listOf("Chats", "Novedades", "Llamadas")
     Column {
-        TabRow(selectedTabIndex = state) {
+        TabRow(selectedTabIndex = pagerState.currentPage /*para pasar de tab a tab*/) {
             titles.forEachIndexed { index, title ->
                 Tab(
-                    selected = state == index,
-                    onClick = { state = index },
+                    selected = pagerState.currentPage == index,
+                    onClick = { scope.launch { pagerState.animateScrollToPage(page =index) } },
                     text = { Text(text = title, maxLines = 2, overflow = TextOverflow.Ellipsis) }
                 )
             }
         }
-        when(state){
-            0 -> Chats()
-            1 -> Novedades()
-            2 -> Llamadas()
+
+        //necesario para navegar de tab a tab
+        HorizontalPager(pageCount = 3, state = pagerState)
+        { page ->
+                    when(page){
+                        0 -> Chats()
+                        1 -> Novedades()
+                        2 -> Llamadas()
+                    }
         }
+
     }
 }

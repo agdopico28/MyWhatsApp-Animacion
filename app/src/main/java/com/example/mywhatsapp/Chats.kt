@@ -5,6 +5,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,12 +18,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -111,9 +119,25 @@ fun getContacto(): List<Contacto> {
 }
 @Composable
 fun ItemsContacto(contacto: Contacto) {
+        var showMenu by remember {
+            mutableStateOf(false)
+        }
 
-        Row (modifier = Modifier.padding(top = 5.dp, bottom = 5.dp, start = 10.dp)
+        Row (modifier = Modifier.pointerInput(true){
+            detectTapGestures (
+                onLongPress = { showMenu = !showMenu}
+            )
+        }
         ){
+            DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+                DropdownMenuItem(text = { Text(text = "Salir del grupo")},
+                    onClick = { /*TODO*/ })
+                DropdownMenuItem(text = { Text(text = "Info. del grupo")},
+                    onClick = { /*TODO*/ })
+                DropdownMenuItem(text = { Text(text = "Crea acceso directo")},
+                    onClick = { /*TODO*/ })
+            }
+
             Image(
                 painter = painterResource(id = contacto.image),
                 contentDescription = "Coffee",
@@ -123,7 +147,8 @@ fun ItemsContacto(contacto: Contacto) {
                 contentScale = ContentScale.Crop
             )
             Row( modifier= Modifier
-                .fillMaxWidth().padding(top = 20.dp, start = 10.dp),
+                .fillMaxWidth()
+                .padding(top = 20.dp, start = 10.dp),
                 ) {
                 Text(text = contacto.nombre,  fontSize = 15.sp)
             }
