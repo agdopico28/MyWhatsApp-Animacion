@@ -4,7 +4,13 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
+import androidx.compose.animation.graphics.res.animatedVectorResource
+import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
+import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,9 +19,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
@@ -58,13 +67,18 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .nestedScroll(scrollBehavior.nestedScrollConnection),
-                    topBar = { MyTopAppBar(scrollBehavior)}){
+                    topBar = { MyTopAppBar(scrollBehavior)},
+                    floatingActionButton = { floatingButtom() }
+                )
+
+                {
 
                     Box (modifier = Modifier
                         .fillMaxSize()
                         .padding(top = it.calculateTopPadding())){
                         MyTabs()
                     }
+
 
                 }
             }
@@ -117,7 +131,8 @@ fun MyTopAppBar(scrollBehavior: TopAppBarScrollBehavior){
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MyTabs(){
-    var pagerState = rememberPagerState(initialPage = 0) //variable a la que iniciamos
+    var pagerState = rememberPagerState(initialPage = 0,
+        initialPageOffsetFraction = 0f){3} //variable a la que iniciamos
     var scope = rememberCoroutineScope() //necesario tmb para tab a tab
     val titles = listOf("Chats", "Novedades", "Llamadas")
     Column {
@@ -132,7 +147,7 @@ fun MyTabs(){
         }
 
         //necesario para navegar de tab a tab
-        HorizontalPager(pageCount = 3, state = pagerState)
+        HorizontalPager( state = pagerState)
         { page ->
                     when(page){
                         0 -> Chats()
@@ -141,5 +156,27 @@ fun MyTabs(){
                     }
         }
 
+    }
+}
+
+@OptIn(ExperimentalAnimationGraphicsApi::class)
+@Composable
+fun floatingButtom(){
+    val image =
+        AnimatedImageVector.animatedVectorResource(R.drawable.add_rotation
+        )
+    var atEnd by remember { mutableStateOf(false) }
+    FloatingActionButton(onClick = {},
+        containerColor = Color(0xFF027A58)
+    ) {
+
+        Image(
+            painter = rememberAnimatedVectorPainter(image, atEnd),
+            contentDescription = "VectorDrawable",
+            modifier = Modifier.clickable {
+                atEnd = !atEnd
+            },
+            contentScale = ContentScale.Crop,
+        )
     }
 }
