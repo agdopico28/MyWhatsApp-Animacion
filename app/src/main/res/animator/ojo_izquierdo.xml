@@ -3,8 +3,8 @@
     <objectAnimator xmlns:android="http://schemas.android.com/apk/res/android"
         android:duration="3000"
         android:propertyName="pathData"
-        android:valueFrom="@string/ojo_izquierdo_abieto"
-        android:valueTo="@string/ojo_izquierdo_cerrado"
+        android:valueFrom="M 25,30 Q 35,30 45,30"
+        android:valueTo="M 25,30 Q 35,47 45,30"
         android:interpolator="@android:interpolator/fast_out_slow_in"
         android:valueType="pathType"/>
 </set>

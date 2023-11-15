@@ -4,7 +4,12 @@
     <target
         android:name="boca_sonriente"
         android:animation="@animator/triste_sonriente" />
+
     <target
-        android:name="ojo_izquierdo"
-        android:animation="@animator/ojos" />
+        android:name="ojo_izquierdo_abierto"
+        android:animation="@animator/ojo_izquierdo" />
+
+    <target
+        android:name="ojo_derecho_abierto"
+        android:animation="@animator/ojo_derecho" />
 </animated-vector>
